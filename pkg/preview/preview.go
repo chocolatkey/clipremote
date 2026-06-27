@@ -1,24 +1,21 @@
 package preview
 
 import (
+	"fmt"
 	"image"
-	"image/color"
 )
 
-func Decode(bin []byte, width int, height int) *image.RGBA {
-	img := image.NewRGBA(image.Rect(0, 0, width, height))
-	bounds := img.Bounds()
-	i := 0
-	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
-		for x := bounds.Min.X; x < bounds.Max.X; x++ {
-			img.Set(x, y, color.RGBA{
-				R: bin[i],
-				G: bin[i+1],
-				B: bin[i+2],
-				A: 255,
-			})
-			i += 3
-		}
+func Decode(bin []byte, width int, height int) (*image.RGBA, error) {
+	if need := width * height * 3; len(bin) < need {
+		return nil, fmt.Errorf("preview: need %d bytes for %dx%d image, got %d", need, width, height, len(bin))
 	}
-	return img
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+	pix := img.Pix
+	for si, di := 0, 0; di < len(pix); si, di = si+3, di+4 {
+		pix[di+0] = bin[si+0] // R
+		pix[di+1] = bin[si+1] // G
+		pix[di+2] = bin[si+2] // B
+		pix[di+3] = 0xFF      // A
+	}
+	return img, nil
 }
