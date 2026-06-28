@@ -9,4 +9,7 @@ const CommandTerminator = byte(0x00)
 
 var CommandParamSeparator = []byte{0x1e, '$'}
 
-const HeartbeatTimeout = time.Second * 3 // Seems to work
+// HeartbeatInterval is how often the client sends a TellHeartbeat. CSP's
+// URRemoteCommandToTellHeartbeat::StartClientSideTimer arms a 1000 ms periodic
+// timer, so the app heartbeats once per second.
+const HeartbeatInterval = time.Second
